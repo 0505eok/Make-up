@@ -1,6 +1,7 @@
 package ICTPrj.server.service;
 
 import ICTPrj.server.domain.repository.FileRepository;
+import ICTPrj.server.dto.FilePathDto;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
@@ -9,6 +10,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URL;
 import java.util.Date;
@@ -44,5 +46,12 @@ public class FileService {
         preSignedUrl = url.toString();
         
         return preSignedUrl;
+    }
+
+    public FilePathDto MakeUp(String uuid){
+        // webclient 써서 flask 연동해야
+        FilePathDto filePathDto = new FilePathDto();
+        filePathDto.setPath("temp");
+        return filePathDto;
     }
 }
