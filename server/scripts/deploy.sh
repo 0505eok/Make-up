@@ -1,11 +1,12 @@
 #!/bin/bash
-BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*.jar)
-JAR_NAME=$(basename $BUILD_JAR)
 
 DEPLOY_PATH=/home/ec2-user/action/
 echo "> build 시작" >> /home/ec2-user/action/deploy.log
 cd DEPLOY_PATH
 ./gradlew build
+
+BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*.jar)
+JAR_NAME=$(basename $BUILD_JAR)
 
 echo "> build 파일명: $JAR_NAME" >> /home/ec2-user/action/deploy.log
 
