@@ -3,9 +3,8 @@ BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 
 DEPLOY_PATH=/home/ec2-user/action/
-echo "> build" >> /home/ec2-user/action/deploy.log
+echo "> build 시작" >> /home/ec2-user/action/deploy.log
 cd DEPLOY_PATH
-sudo chmod +x ./gradlew
 ./gradlew build
 
 echo "> build 파일명: $JAR_NAME" >> /home/ec2-user/action/deploy.log
