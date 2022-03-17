@@ -3,7 +3,7 @@ name: test
 on:
   push:
     branches:
-      - server
+      - testDeploy2
 #   pull_request:
 #     branches:
 #       - server
