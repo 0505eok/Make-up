@@ -7,13 +7,13 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-public class Post {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,15 +25,11 @@ public class Post {
     @JoinColumn(name = "User_id")
     private User user;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    List<File> files = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "Post_id")
+    private Post post;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    List<Comment> comments = new ArrayList<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     List<Likes> likes = new ArrayList<>();
 }

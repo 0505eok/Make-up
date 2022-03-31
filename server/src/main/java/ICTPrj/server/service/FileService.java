@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
@@ -28,6 +29,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FileService {
     private final FileRepository fileRepository;
     private final AmazonS3 s3Client;
@@ -70,19 +72,18 @@ public class FileService {
         try{
             S3Object o = s3Client.getObject(bucketName, uuid + "/result/result.png");
             ret = uuid + "/result/result.png";
-        }catch (AmazonServiceException e){
+        }catch (AmazonServiceException e) {
             MakeupDto reqDto = MakeupDto.builder().file(uuid).build();
-            HttpClient httpClient = HttpClient.create().secure(t -> {
-                try {
-                    t.sslContext(SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
-                } catch (SSLException er){
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근할 수 없습니다.");
-                }
-            });
-
+//            HttpClient httpClient = HttpClient.create().secure(t -> {
+//                try {
+//                    t.sslContext(SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
+//                } catch (SSLException er){
+//                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근할 수 없습니다.");
+//                }
+//            });
             WebClient webClient = WebClient.builder()
                     .baseUrl(flaskUrl)
-                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+//                    .clientConnector(new ReactorClientHttpConnector(httpClient))
                     .build();
 
             try {
@@ -97,7 +98,6 @@ public class FileService {
                 if (er.getMessage().startsWith("400")) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지에 얼굴이 없습니다.");
                 }
-                
                 else {
                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Blocked by CORS policy");
                 }

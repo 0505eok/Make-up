@@ -6,10 +6,13 @@ import ICTPrj.server.domain.repository.FollowRepository;
 import ICTPrj.server.domain.repository.UserRepository;
 import ICTPrj.server.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,9 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
+    @Value("${cloud.aws.s3.fileprefix}")
+    private String filePrefix;
+
     private Long getCount(User user, int flag){
         if(flag == 1)
             return followRepository.countByFollowing(user);
@@ -30,18 +36,18 @@ public class FollowService {
 
     public UserWithFollowDto signin(String email){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("없는 사용자입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "unauthorized"));
         Long following = getCount(user, 0);
         Long follower = getCount(user, 1);
-        return UserWithFollowDto.of(user, following, follower);
+        return UserWithFollowDto.of(user, following, follower, filePrefix);
     }
 
     @Transactional
     public IdDto doFollow(String email, FollowDto followDto){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("없는 사용자입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
         User other = userRepository.findById(followDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("없는 사용자입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
         Boolean flag = followDto.getIsPlus();
         if(flag){
             Follow follow = Follow.builder()
@@ -76,7 +82,7 @@ public class FollowService {
 
         List<DefaultUserDto> users = new ArrayList<DefaultUserDto>();
         for(User user : userList){
-            users.add(DefaultUserDto.of(user));
+            users.add(DefaultUserDto.of(user, filePrefix));
         }
         return FollowUserDto.builder()
                 .user(users)
